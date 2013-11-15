@@ -5,6 +5,7 @@
 #include <FL/glu.h>
 #include <fstream>
 #include <cstdio>
+#include <cstring>
 
 #include "camera.h"
 #include "curve.h"

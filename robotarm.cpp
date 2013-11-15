@@ -6,6 +6,7 @@
 #pragma warning (disable : 4312)
 
 
+#include <cstring>
 #include "modelerview.h"
 #include "modelerapp.h"
 #include "modelerdraw.h"
