@@ -43,7 +43,7 @@ enum RobotControls
 
 void ground(float thickness);
 void threads(float diameter, float thickness);
-void rotation_base(float h);
+void rotation_base();
 void lower_arm(float h);
 void upper_arm(float h);
 void claw(float h);
@@ -104,7 +104,6 @@ void RobotArm::draw()
     float l_la = VAL( LOWER_ARM_LENGTH );
     float l_ua = VAL( UPPER_ARM_LENGTH );
     float r_cw = VAL( CLAW_ROTATION );
-    float DEPRECATED = 1;
     float r_cn = VAL( CANNON_TILT );
     float l_cn = VAL( CANNON_LENGTH );
     float d_cn = VAL( CANNON_SIZE );
@@ -127,18 +126,35 @@ void RobotArm::draw()
 
 	// define the model
 
+    // floor
 	ground(-0.2);
 
+    // threads of vehicle
     threads(0.8, 0.5);
 
+    // skeleton of vehicle
     glTranslatef( 0.0, 0.8, 0.0 );
     glPushMatrix();
-        glScalef(2.0f, 0.4f, 2.0f);
+        glScalef(2.0f, 0.8f, 2.0f);
         unit_box();                         // platform on top of the threads
     glPopMatrix();
-//    glTranslatef( 0.0, 0.40, 0.0 );
-//    glRotatef( r_b, 0.0, 1.0, 0.0 );		// turn the whole assembly around the y-axis.
-//    rotation_base(DEPRECATED);						// draw the rotation base
+
+    // rotating surface of vehicle
+    glPushMatrix();
+        glTranslatef( 0.0, 0.8, 0.0 );
+        glRotatef( r_b, 0.0, 1.0, 0.0 );		// turn the whole assembly around the y-axis.
+        rotation_base();						// draw the rotation assembly unit
+    glPopMatrix();
+
+    // rotating arm -z
+    glPushMatrix();
+
+    glPopMatrix();
+
+    // rotating arm +z
+    glPushMatrix();
+
+    glPopMatrix();
 
 //    glTranslatef( 0.0, DEPRECATED, 0.0 );			// move to the top of the base
 //	glPushMatrix();
@@ -208,35 +224,60 @@ void threads(float diameter, float thickness) {
 	glPopMatrix();
 }
 
-void rotation_base(float h) {
-	setDiffuseColor( 0.85, 0.75, 0.25 );
-	setAmbientColor( 0.95, 0.75, 0.25 );
-	glPushMatrix();
+void rotation_base() {
+    glPushMatrix();
+
+        // the rotating base
+        setDiffuseColor( 0.85, 0.75, 0.25 );
+        setAmbientColor( 0.95, 0.75, 0.25 );
 		glPushMatrix();
-            glScalef(2.50, h, 2.50);
-            y_box(1.0f); // the rotation base
+            glScalef(1.50, 1.0f, 1.50);
+            unit_box();
 		glPopMatrix();
-		setDiffuseColor( 0.15, 0.15, 0.65 );
-		setAmbientColor( 0.15, 0.15, 0.65 );
-		glPushMatrix();
-            glTranslatef(0.0, h, 0.0);
-            glScalef(1.0, h / 2.0, 1.0);
-			y_box(1.0f); // the console
-		glPopMatrix();
-		setDiffuseColor( 0.65, 0.65, 0.65 );
-		setAmbientColor( 0.65, 0.65, 0.65 );
-//		glPushMatrix();
-//			glTranslatef( 0.5, h, 0.6 );
-//			glRotatef( -90.0, 1.0, 0.0, 0.0 );
-//			drawCylinder( h, 0.05, 0.05 ); // the pipe
-//		glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(0.0, 1.0, 0.0);
+
+            // the console
+            setDiffuseColor( 0.15, 0.15, 0.65 );
+            setAmbientColor( 0.15, 0.15, 0.65 );
+            glPushMatrix();
+                glScalef(0.75, 0.5, 0.75);
+                unit_box();
+            glPopMatrix();
+
+            // the thin pipe
+            setDiffuseColor( 0.65, 0.65, 0.65 );
+            setAmbientColor( 0.65, 0.65, 0.65 );
+            glPushMatrix();
+                glTranslatef( 0.5, 0.0, 0.5 );
+                glRotatef( -90.0, 1.0, 0.0, 0.0 );
+                drawCylinder( 1.0, 0.05, 0.05 );
+            glPopMatrix();
+
+            // the thick pipe
+            setDiffuseColor( 0.65, 0.65, 0.65 );
+            setAmbientColor( 0.65, 0.65, 0.65 );
+            glPushMatrix();
+                glTranslatef( 0.375, 0.0, -0.6 );
+                glRotatef( -90.0, 1.0, 0.0, 0.0 );
+                drawCylinder( 0.35, 0.1, 0.1 );
+            glPopMatrix();
+        glPopMatrix();
+
+        // the cannon
         setDiffuseColor( 0.4, 0.6, 0.4 );
         setAmbientColor( 0.2, 0.2, 0.2 );
         glPushMatrix();
-            glTranslatef( -0.5, h / 2.0, 0.0 );
+            glTranslatef( -0.75, 0.5, 0.0 );
             glRotatef( -90.0, 0.0, 1.0, 0.0 );
-            drawCylinder( 1.0, h / 4, h / 2.2 ); // the Cannon TODO variable length; variable ring size; max cannon base
-            //cannon_head(h); // replace h with ring size
+            glPushMatrix();
+                drawCylinder( 1.0, 0.25, 0.4 );
+            glPopMatrix();
+            glPushMatrix();
+                glTranslatef( 0.0, 0.0, 1.0 );
+                drawCylinder( 0.25, 0.5, 0.5 );
+            glPopMatrix();
         glPopMatrix();
 	glPopMatrix();
 }
