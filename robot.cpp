@@ -38,7 +38,7 @@ enum RobotControls
     BASE_ROTATION=0, //base controls
     LOWER_ARM_TILT, UPPER_ARM_TILT, CLAW_ROTATION, LOWER_ARM_LENGTH, UPPER_ARM_LENGTH, //arms
     CANNON_TILT, CANNON_LENGTH, CANNON_SIZE, //cannon
-    PARTICLE_COUNT, NUMCONTROLS,
+    PARTICLE_COUNT, RESET_ARMS, EXTEND_ARMS, NUMCONTROLS,
 };
 
 void threads(float diameter, float thickness);
@@ -115,6 +115,8 @@ void RobotArm::draw()
     float l_cn = VAL( CANNON_LENGTH );
     float d_cn = VAL( CANNON_SIZE );
 	float pc = VAL( PARTICLE_COUNT );
+    float x_ea = VAL( EXTEND_ARMS );
+    float x_ra = VAL( RESET_ARMS );
 
     // This call takes care of a lot of the nasty projection 
     // matrix stuff
@@ -158,22 +160,49 @@ void RobotArm::draw()
         rotating_unit(l_cn, d_cn, r_cn);
     glPopMatrix();
 
+    float new_l_ua,new_l_la;
+    if(l_ua + x_ea < 1.0)
+        new_l_ua = 1.0;
+    else if(l_ua + x_ea > 10)
+        new_l_ua = 10.0;
+    else
+        new_l_ua = l_ua + x_ea;
+
+    if(l_la + x_ea < 2.0)
+        new_l_la = 2.0;
+    else if(l_la + x_ea > 10)
+        new_l_la = 10.0;
+    else
+        new_l_la = l_la + x_ea;
+
+    float new_r_ua, new_r_la;
+    if(r_ua - x_ra < 0){
+        new_r_ua = 0;
+    } else {
+        new_r_ua = r_ua - x_ra;
+    }
+
+    if(r_la - x_ra < 0){
+        new_r_la = 0;
+    } else {
+        new_r_la = r_la - x_ra;
+    }
     // rotating arm -z
     glPushMatrix();
         glTranslatef( 0.0, 0.4, 1.2);
-        glRotatef(90 - r_la, 0.0, 0.0, 1.0);
+        glRotatef(90 - new_r_la, 0.0, 0.0, 1.0);
         glPushMatrix();
-            glScalef(0.4, l_la, 0.4);
+            glScalef(0.4, new_l_la, 0.4);
             paint_lower_arm();
         glPopMatrix();
         glPushMatrix();
-            glTranslatef( 0.0, l_la, 0.0 );
-            glRotatef(-1*r_ua, 1.0,0.0,0.0);
+            glTranslatef( 0.0, new_l_la, 0.0 );
+            glRotatef(-1*new_r_ua, 1.0,0.0,0.0);
             glPushMatrix();
-                glScalef(0.3, l_ua, 0.3);
+                glScalef(0.3, new_l_ua, 0.3);
                 paint_upper_arm();
             glPopMatrix();
-            glTranslatef(0.0, l_ua, 0.0);
+            glTranslatef(0.0, new_l_ua, 0.0);
             glRotatef(-90, 0.0,1.0,0.0);
             glRotatef(r_cw, 0.0, 0.0, 1.0);
             glScalef(0.5,0.5,0.5);
@@ -184,19 +213,19 @@ void RobotArm::draw()
     // rotating arm +z
     glPushMatrix();
         glTranslatef( 0.0, 0.4, -1.2);
-        glRotatef(90 - r_la, 0.0, 0.0, 1.0);
+        glRotatef(90 - new_r_la, 0.0, 0.0, 1.0);
         glPushMatrix();
-            glScalef(0.4, l_la, 0.4);
+            glScalef(0.4, new_l_la, 0.4);
             paint_lower_arm();
         glPopMatrix();
         glPushMatrix();
-            glTranslatef( 0.0, l_la, 0.0 );
-            glRotatef(r_ua, 1.0,0.0,0.0);
+            glTranslatef( 0.0, new_l_la, 0.0 );
+            glRotatef(new_r_ua, 1.0,0.0,0.0);
             glPushMatrix();
-                glScalef(0.3, l_ua, 0.3);
+                glScalef(0.3, new_l_ua, 0.3);
                 paint_upper_arm();
             glPopMatrix();
-            glTranslatef(0.0, l_ua, 0.0);
+            glTranslatef(0.0, new_l_ua, 0.0);
             glRotatef(90, 0.0,1.0,0.0);
             glRotatef(r_cw, 0.0, 0.0, 1.0);
             glScalef(0.5,0.5,0.5);
@@ -461,7 +490,7 @@ int main()
 
     controls[BASE_ROTATION] = ModelerControl("base rotation (r_b)", -180.0, 180.0, 0.1, 0.0 );
     controls[LOWER_ARM_TILT] = ModelerControl("lower arm tilt (r_la)", -180.0, 180.0, 0.1, 0.0 );
-    controls[UPPER_ARM_TILT] = ModelerControl("upper arm tilt (r_ua)", 0.0, 135.0, 0.1, 30.0 );
+    controls[UPPER_ARM_TILT] = ModelerControl("upper arm tilt (r_ua)", 0.0, 135.0, 0.1, 0.0 );
     controls[CLAW_ROTATION] = ModelerControl("claw rotation (r_cw)", -90.0, 130.0, 0.1, 0.0 );
     controls[LOWER_ARM_LENGTH] = ModelerControl("lower arm length (l_la)", 1, 10.0, 0.1, 2.0 );
     controls[UPPER_ARM_LENGTH] = ModelerControl("upper arm length (l_ua)", 1, 10.0, 0.1, 1.0 );
@@ -469,6 +498,8 @@ int main()
     controls[CANNON_LENGTH] = ModelerControl("cannon length (l_cn)", 0.5, 5.0, 0.1, 1.0 );
     controls[CANNON_SIZE] = ModelerControl("cannon diameter (d_cn)", 0.1, 5.0, 0.1, 0.4 );
     controls[PARTICLE_COUNT] = ModelerControl("particle count (pc)", 0.0, 5.0, 0.1, 5.0 );
+    controls[RESET_ARMS] = ModelerControl("reset arms (x_ra) -- RESET TO 0 AFTERWARDS", 0.0, 360.0, 0.1, 0.0 );
+    controls[EXTEND_ARMS] = ModelerControl("extend arms (x_ea) -- RESET TO 0 AFTERWARDS", -10.0, 10.0, 0.1, 0.0 );
     
 
 	// You should create a ParticleSystem object ps here and then
