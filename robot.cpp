@@ -41,13 +41,14 @@ enum RobotControls
     PARTICLE_COUNT, NUMCONTROLS,
 };
 
-void ground(float h);
-void threads(float h);
-void rotation_base(float h);
+void ground(float thickness);
+void threads(float diameter, float thickness);
+void rotation_base();
 void lower_arm(float h);
 void upper_arm(float h);
 void claw(float h);
 void y_box(float h);
+void unit_box();
 Mat4f glGetMatrix(GLenum pname);
 Vec3f getWorldPoint(Mat4f matCamXforms);
 
@@ -100,10 +101,12 @@ void RobotArm::draw()
     float r_b = VAL( BASE_ROTATION );
     float r_la = VAL( LOWER_ARM_TILT );
     float r_ua = VAL( UPPER_ARM_TILT );
-    float r_cw = VAL( CLAW_ROTATION );
-    float DEPRECATED = 1;
     float l_la = VAL( LOWER_ARM_LENGTH );
     float l_ua = VAL( UPPER_ARM_LENGTH );
+    float r_cw = VAL( CLAW_ROTATION );
+    float r_cn = VAL( CANNON_TILT );
+    float l_cn = VAL( CANNON_LENGTH );
+    float d_cn = VAL( CANNON_SIZE );
 	float pc = VAL( PARTICLE_COUNT );
 
     // This call takes care of a lot of the nasty projection 
@@ -123,34 +126,51 @@ void RobotArm::draw()
 
 	// define the model
 
+    // floor
 	ground(-0.2);
 
-    threads(0.8);
+    // threads of vehicle
+    threads(0.8, 0.5);
 
+    // skeleton of vehicle
     glTranslatef( 0.0, 0.8, 0.0 );
     glPushMatrix();
-        glScalef(4.0f, 0.4f, 4.0f);
-        y_box(1.0f);                        // platform on top of the threads
+        glScalef(2.0f, 0.8f, 2.0f);
+        unit_box();                         // platform on top of the threads
     glPopMatrix();
-    glTranslatef( 0.0, 0.40, 0.0 );
-    glRotatef( r_b, 0.0, 1.0, 0.0 );		// turn the whole assembly around the y-axis.
-    rotation_base(DEPRECATED);						// draw the rotation base
 
-    glTranslatef( 0.0, DEPRECATED, 0.0 );			// move to the top of the base
-	glPushMatrix();
-            glTranslatef( 0.5, DEPRECATED, 0.6 );
-	glPopMatrix();
-    glRotatef( r_la, 0.0, 0.0, 1.0 );		// rotate around the z-axis for the lower arm
-	glTranslatef( -0.1, 0.0, 0.4 );
-    lower_arm(l_la);							// draw the lower arm
+    // rotating surface of vehicle
+    glPushMatrix();
+        glTranslatef( 0.0, 0.8, 0.0 );
+        glRotatef( r_b, 0.0, 1.0, 0.0 );		// turn the whole assembly around the y-axis.
+        rotation_base();						// draw the rotation assembly unit
+    glPopMatrix();
 
-    glTranslatef( 0.0, l_la, 0.0 );			// move to the top of the lower arm
-    glRotatef( r_ua, 0.0, 0.0, 1.0 );		// rotate  around z-axis for the upper arm
-    upper_arm(l_ua);							// draw the upper arm
+    // rotating arm -z
+    glPushMatrix();
 
-    glTranslatef( 0.0, l_ua, 0.0 );
-    glRotatef( r_cw, 0.0, 0.0, 1.0 );
-	claw(1.0);
+    glPopMatrix();
+
+    // rotating arm +z
+    glPushMatrix();
+
+    glPopMatrix();
+
+//    glTranslatef( 0.0, DEPRECATED, 0.0 );			// move to the top of the base
+//	glPushMatrix();
+//            glTranslatef( 0.5, DEPRECATED, 0.6 );
+//	glPopMatrix();
+//    glRotatef( r_la, 0.0, 0.0, 1.0 );		// rotate around the z-axis for the lower arm
+//	glTranslatef( -0.1, 0.0, 0.4 );
+//    lower_arm(l_la);							// draw the lower arm
+
+//    glTranslatef( 0.0, l_la, 0.0 );			// move to the top of the lower arm
+//    glRotatef( r_ua, 0.0, 0.0, 1.0 );		// rotate  around z-axis for the upper arm
+//    upper_arm(l_ua);							// draw the upper arm
+
+//    glTranslatef( 0.0, l_ua, 0.0 );
+//    glRotatef( r_cw, 0.0, 0.0, 1.0 );
+//	claw(1.0);
 
 
 
@@ -159,79 +179,105 @@ void RobotArm::draw()
 	endDraw();
 }
 
-void ground(float h) 
+void ground(float thickness)
 {
 	glDisable(GL_LIGHTING);
     glColor3f(0.6,0.4,0.2);
 	glPushMatrix();
 	glScalef(30,0,30);
-	y_box(h);
+    y_box(thickness);
 	glPopMatrix();
 	glEnable(GL_LIGHTING);
 }
 
-void threads(float h) {
+void threads(float diameter, float thickness) {
     setDiffuseColor( 0.40, 0.60, 0.40 );
     setAmbientColor( 0.2, 0.2, 0.2 );
 	glPushMatrix();
         glPushMatrix();
-            glTranslatef(1.0, h / 2.0, 0.75);
-            drawCylinder(0.25, h / 2.0, h / 2.0);
+            glTranslatef(0.0, 0.0, 1.0);
+            glScalef(2.0f, diameter, thickness);
+            unit_box();
         glPopMatrix();
         glPushMatrix();
-            glTranslatef(1.0, h / 2.0, -1.0);
-            drawCylinder(0.25, h / 2.0, h / 2.0);
+            glTranslatef(1.0, diameter / 2.0, 0.75);
+            drawCylinder(thickness, diameter / 2.0, diameter / 2.0);
         glPopMatrix();
         glPushMatrix();
-            glTranslatef(-1.0, h / 2.0, 0.75);
-            drawCylinder(0.25, h / 2.0, h / 2.0);
+            glTranslatef(-1.0, diameter / 2.0, 0.75);
+            drawCylinder(thickness, diameter / 2.0, diameter / 2.0);
+        glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(0.0, 0.0, -1.0);
+            glScalef(2.0f, diameter, thickness);
+            unit_box();
         glPopMatrix();
         glPushMatrix();
-            glTranslatef(-1.0, h / 2.0, -1.0);
-            drawCylinder(0.25, h / 2.0, h / 2.0);
+            glTranslatef(1.0, diameter / 2.0, -1.25);
+            drawCylinder(thickness, diameter / 2.0, diameter / 2.0);
         glPopMatrix();
         glPushMatrix();
-            glScalef(4.0f, h, 0.50f);
-            glTranslatef(0.0, 0.0, -1.750);
-            y_box(1.0f);
-        glPopMatrix();
-        glPushMatrix();
-            glScalef(4.0f, h, 0.50f);
-            glTranslatef(0.0, 0.0, 1.750);
-            y_box(1.0f);
+            glTranslatef(-1.0, diameter / 2.0, -1.25);
+            drawCylinder(thickness, diameter / 2.0, diameter / 2.0);
         glPopMatrix();
 	glPopMatrix();
 }
 
-void rotation_base(float h) {
-	setDiffuseColor( 0.85, 0.75, 0.25 );
-	setAmbientColor( 0.95, 0.75, 0.25 );
-	glPushMatrix();
+void rotation_base() {
+    glPushMatrix();
+
+        // the rotating base
+        setDiffuseColor( 0.85, 0.75, 0.25 );
+        setAmbientColor( 0.95, 0.75, 0.25 );
 		glPushMatrix();
-            glScalef(2.50, h, 2.50);
-			y_box(1.0f); // the rotation base
+            glScalef(1.50, 1.0f, 1.50);
+            unit_box();
 		glPopMatrix();
-		setDiffuseColor( 0.15, 0.15, 0.65 );
-		setAmbientColor( 0.15, 0.15, 0.65 );
-		glPushMatrix();
-            glTranslatef(0.0, h, 0.0);
-            glScalef(1.0, h / 2.0, 1.0);
-			y_box(1.0f); // the console
-		glPopMatrix();
-		setDiffuseColor( 0.65, 0.65, 0.65 );
-		setAmbientColor( 0.65, 0.65, 0.65 );
-//		glPushMatrix();
-//			glTranslatef( 0.5, h, 0.6 );
-//			glRotatef( -90.0, 1.0, 0.0, 0.0 );
-//			drawCylinder( h, 0.05, 0.05 ); // the pipe
-//		glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(0.0, 1.0, 0.0);
+
+            // the console
+            setDiffuseColor( 0.15, 0.15, 0.65 );
+            setAmbientColor( 0.15, 0.15, 0.65 );
+            glPushMatrix();
+                glScalef(0.75, 0.5, 0.75);
+                unit_box();
+            glPopMatrix();
+
+            // the thin pipe
+            setDiffuseColor( 0.65, 0.65, 0.65 );
+            setAmbientColor( 0.65, 0.65, 0.65 );
+            glPushMatrix();
+                glTranslatef( 0.5, 0.0, 0.5 );
+                glRotatef( -90.0, 1.0, 0.0, 0.0 );
+                drawCylinder( 1.0, 0.05, 0.05 );
+            glPopMatrix();
+
+            // the thick pipe
+            setDiffuseColor( 0.65, 0.65, 0.65 );
+            setAmbientColor( 0.65, 0.65, 0.65 );
+            glPushMatrix();
+                glTranslatef( 0.375, 0.0, -0.6 );
+                glRotatef( -90.0, 1.0, 0.0, 0.0 );
+                drawCylinder( 0.35, 0.1, 0.1 );
+            glPopMatrix();
+        glPopMatrix();
+
+        // the cannon
         setDiffuseColor( 0.4, 0.6, 0.4 );
         setAmbientColor( 0.2, 0.2, 0.2 );
         glPushMatrix();
-            glTranslatef( -0.5, h / 2.0, 0.0 );
+            glTranslatef( -0.75, 0.5, 0.0 );
             glRotatef( -90.0, 0.0, 1.0, 0.0 );
-            drawCylinder( 1.0, h / 4, h / 2.2 ); // the Cannon TODO variable length; variable ring size; max cannon base
-            //cannon_head(h); // replace h with ring size
+            glPushMatrix();
+                drawCylinder( 1.0, 0.25, 0.4 );
+            glPopMatrix();
+            glPushMatrix();
+                glTranslatef( 0.0, 0.0, 1.0 );
+                drawCylinder( 0.25, 0.5, 0.5 );
+            glPopMatrix();
         glPopMatrix();
 	glPopMatrix();
 }
@@ -299,42 +345,85 @@ void y_box(float h) {
 	glBegin( GL_QUADS );
 
 	glNormal3d( 1.0 ,0.0, 0.0);			// +x side
-	glVertex3d( 0.25,0.0, 0.25);
-	glVertex3d( 0.25,0.0,-0.25);
-	glVertex3d( 0.25,  h,-0.25);
-	glVertex3d( 0.25,  h, 0.25);
+    glVertex3d( 0.25,0.0, 0.25);
+    glVertex3d( 0.25,0.0,-0.25);
+    glVertex3d( 0.25,  h,-0.25);
+    glVertex3d( 0.25,  h, 0.25);
 
 	glNormal3d( 0.0 ,0.0, -1.0);		// -z side
-	glVertex3d( 0.25,0.0,-0.25);
-	glVertex3d(-0.25,0.0,-0.25);
-	glVertex3d(-0.25,  h,-0.25);
-	glVertex3d( 0.25,  h,-0.25);
+    glVertex3d( 0.25,0.0,-0.25);
+    glVertex3d(-0.25,0.0,-0.25);
+    glVertex3d(-0.25,  h,-0.25);
+    glVertex3d( 0.25,  h,-0.25);
 
 	glNormal3d(-1.0, 0.0, 0.0);			// -x side
-	glVertex3d(-0.25,0.0,-0.25);
-	glVertex3d(-0.25,0.0, 0.25);
-	glVertex3d(-0.25,  h, 0.25);
-	glVertex3d(-0.25,  h,-0.25);
+    glVertex3d(-0.25,0.0,-0.25);
+    glVertex3d(-0.25,0.0, 0.25);
+    glVertex3d(-0.25,  h, 0.25);
+    glVertex3d(-0.25,  h,-0.25);
 
 	glNormal3d( 0.0, 0.0, 1.0);			// +z side
-	glVertex3d(-0.25,0.0, 0.25);
-	glVertex3d( 0.25,0.0, 0.25);
-	glVertex3d( 0.25,  h, 0.25);
-	glVertex3d(-0.25,  h, 0.25);
+    glVertex3d(-0.25,0.0, 0.25);
+    glVertex3d( 0.25,0.0, 0.25);
+    glVertex3d( 0.25,  h, 0.25);
+    glVertex3d(-0.25,  h, 0.25);
 
-	glNormal3d( 0.0, 1.0, 0.0);			// top (+y)
-	glVertex3d( 0.25,  h, 0.25);
-	glVertex3d( 0.25,  h,-0.25);
-	glVertex3d(-0.25,  h,-0.25);
-	glVertex3d(-0.25,  h, 0.25);
+    glNormal3d( 0.0, 1.0, 0.0);			// top (+y)
+    glVertex3d( 0.25,  h, 0.25);
+    glVertex3d( 0.25,  h,-0.25);
+    glVertex3d(-0.25,  h,-0.25);
+    glVertex3d(-0.25,  h, 0.25);
 
 	glNormal3d( 0.0,-1.0, 0.0);			// bottom (-y)
-	glVertex3d( 0.25,0.0, 0.25);
-	glVertex3d(-0.25,0.0, 0.25);
-	glVertex3d(-0.25,0.0,-0.25);
-	glVertex3d( 0.25,0.0,-0.25);
+    glVertex3d( 0.25,0.0, 0.25);
+    glVertex3d(-0.25,0.0, 0.25);
+    glVertex3d(-0.25,0.0,-0.25);
+    glVertex3d( 0.25,0.0,-0.25);
 
-	glEnd();
+    glEnd();
+}
+
+void unit_box() { //origin in the center of -y face
+
+    glBegin( GL_QUADS );
+
+    glNormal3d( 1.0 ,0.0, 0.0);			// +x side
+    glVertex3d( 0.5,0.0, 0.5);
+    glVertex3d( 0.5,0.0,-0.5);
+    glVertex3d( 0.5,1.0,-0.5);
+    glVertex3d( 0.5,1.0, 0.5);
+
+    glNormal3d( 0.0 ,0.0, -1.0);		// -z side
+    glVertex3d( 0.5,0.0,-0.5);
+    glVertex3d(-0.5,0.0,-0.5);
+    glVertex3d(-0.5,1.0,-0.5);
+    glVertex3d( 0.5,1.0,-0.5);
+
+    glNormal3d(-1.0, 0.0, 0.0);			// -x side
+    glVertex3d(-0.5,0.0,-0.5);
+    glVertex3d(-0.5,0.0, 0.5);
+    glVertex3d(-0.5,1.0, 0.5);
+    glVertex3d(-0.5,1.0,-0.5);
+
+    glNormal3d( 0.0, 0.0, 1.0);			// +z side
+    glVertex3d(-0.5,0.0, 0.5);
+    glVertex3d( 0.5,0.0, 0.5);
+    glVertex3d( 0.5,1.0, 0.5);
+    glVertex3d(-0.5,1.0, 0.5);
+
+    glNormal3d( 0.0,1.0, 0.0);			// top (+y)
+    glVertex3d( 0.5,1.0, 0.5);
+    glVertex3d( 0.5,1.0,-0.5);
+    glVertex3d(-0.5,1.0,-0.5);
+    glVertex3d(-0.5,1.0, 0.5);
+
+    glNormal3d( 0.0,-1.0, 0.0);			// bottom (-y)
+    glVertex3d( 0.5,0.0, 0.5);
+    glVertex3d(-0.5,0.0, 0.5);
+    glVertex3d(-0.5,0.0,-0.5);
+    glVertex3d( 0.5,0.0,-0.5);
+
+    glEnd();
 }
 
 int main()
