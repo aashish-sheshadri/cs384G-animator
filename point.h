@@ -25,6 +25,11 @@ public:
 		return sqrtf(xd * xd + yd * yd);
 	}
 
+    friend Point operator+(const Point a, const Point b){
+        return(Point(a.x+b.x,a.y+b.y));}
+    friend Point operator*(float scalarVal, const Point a){
+        return(Point(scalarVal*a.x,scalarVal*a.y));}
+
 	float x;
 	float y;
 };

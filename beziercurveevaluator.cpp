@@ -1,47 +1,52 @@
 #include "beziercurveevaluator.h"
 #include <cassert>
+#include <iostream>
+
+
+BezierCurveEvaluator::BezierCurveEvaluator(){
+    _numSamples = 1000;}
 
 void BezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts, 
 										 std::vector<Point>& ptvEvaluatedCurvePts, 
 										 const float& fAniLength, 
 										 const bool& bWrap) const
 {
-	int iCtrlPtCount = ptvCtrlPts.size();
-
-	ptvEvaluatedCurvePts.assign(ptvCtrlPts.begin(), ptvCtrlPts.end());
-
-	float x = 0.0;
-	float y1;
-
+    ptvEvaluatedCurvePts.clear();
+    ptvEvaluatedCurvePts.reserve(_numSamples);
+    std::vector<double> samplePoints(_numSamples + 1,_numSamples);
+    ufGenSample uf;
+    std::transform(samplePoints.begin(),samplePoints.end(),samplePoints.begin(),uf);
 	if (bWrap) {
 		// if wrapping is on, interpolate the y value at xmin and
 		// xmax so that the slopes of the lines adjacent to the
 		// wraparound are equal.
 
-		if ((ptvCtrlPts[0].x + fAniLength) - ptvCtrlPts[iCtrlPtCount - 1].x > 0.0f) {
-			y1 = (ptvCtrlPts[0].y * (fAniLength - ptvCtrlPts[iCtrlPtCount - 1].x) + 
-				  ptvCtrlPts[iCtrlPtCount - 1].y * ptvCtrlPts[0].x) /
-				 (ptvCtrlPts[0].x + fAniLength - ptvCtrlPts[iCtrlPtCount - 1].x);
-		}
-		else 
-			y1 = ptvCtrlPts[0].y;
+        //this is a bell
 	}
 	else {
-		// if wrapping is off, make the first and last segments of
-		// the curve horizontal.
+        std::queue<Point> beginQueue(std::deque<Point>(ptvCtrlPts.begin(),ptvCtrlPts.end()));
+        size_t numControlPoints = beginQueue.size();
+        for(std::vector<double>::iterator it = samplePoints.begin();it!=samplePoints.end();++it){
+            std::queue<Point> tempQueue = beginQueue;
+            size_t currControlPoints = numControlPoints;
+            size_t controlPointsCounter = numControlPoints;
+            while(currControlPoints>2){
+                Point first = tempQueue.front();
+                tempQueue.pop();
+                --controlPointsCounter;
+                if(controlPointsCounter == 0){
+                    --currControlPoints;
+                    controlPointsCounter = currControlPoints;
+                    continue;}
+                Point second = tempQueue.front();
+                tempQueue.push(((1.0f - *it)*first)+((*it)*second));}
+            Point first = tempQueue.front();
+            tempQueue.pop();
+            Point second = tempQueue.front();
+            tempQueue.pop();
+            ptvEvaluatedCurvePts.push_back(((1.0f - *it)*first)+((*it)*second));}}}
 
-		y1 = ptvCtrlPts[0].y;
-    }
-
-	ptvEvaluatedCurvePts.push_back(Point(x, y1));
-
-	/// set the endpoint based on the wrap flag.
-	float y2;
-    x = fAniLength;
-    if (bWrap)
-		y2 = y1;
-    else
-		y2 = ptvCtrlPts[iCtrlPtCount - 1].y;
-
-	ptvEvaluatedCurvePts.push_back(Point(x, y2));
-}
+void BezierCurveEvaluator::setNumSamples(size_t numSamples){
+    this->_numSamples = numSamples;}
+const size_t BezierCurveEvaluator::getNumSamples(){
+    return _numSamples;}
