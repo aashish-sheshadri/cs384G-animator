@@ -60,10 +60,10 @@ Mat4f glGetMatrix(GLenum pname);
 Vec3f getWorldPoint(Mat4f matCamXforms);
 
 // To make a RobotArm, we inherit off of ModelerView
-class RobotArm : public ModelerView 
+class Robot : public ModelerView
 {
 public:
-    RobotArm(int x, int y, int w, int h, char *label) 
+    Robot(int x, int y, int w, int h, char *label)
         : ModelerView(x,y,w,h,label) {}
     virtual void draw();
 };
@@ -72,7 +72,7 @@ public:
 // nasty API stuff that we'd rather stay away from.
 ModelerView* createRobotArm(int x, int y, int w, int h, char *label)
 { 
-    return new RobotArm(x,y,w,h,label); 
+    return new Robot(x,y,w,h,label);
 }
 
 // We'll be getting the instance of the application a lot; 
@@ -101,7 +101,7 @@ Mat4f glGetMatrix(GLenum pname)
 
 // We are going to override (is that the right word?) the draw()
 // method of ModelerView to draw out RobotArm
-void RobotArm::draw()
+void Robot::draw()
 {
 	/* pick up the slider values */
 
