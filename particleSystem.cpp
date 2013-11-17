@@ -6,10 +6,19 @@
 #include <cstdlib>
 #include <cassert>
 #include <cmath>
-
+#include <vector>
 using namespace std;
 
 static float prevT;
+struct particle{
+    vector<float> position();
+    vector<float> velocity();
+    vector<float> forces();
+    float mass;
+    float lifetime;
+};
+static vector<particle> particles();
+
 
 /***************
  * Constructors
@@ -79,7 +88,9 @@ void ParticleSystem::resetSimulation(float t)
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
-	// TODO
+    int numberOfParticles = 1;  // TODO hook it with GUI
+                                // TODO perturb velocity
+
 
 	// Debugging info
 	if( t - prevT > .04 )
@@ -110,6 +121,23 @@ void ParticleSystem::clearBaked()
 	// TODO
 }
 
+void createNewParticles(float particle_count, vector<float> initial_velocity, vector<float> initial_position){
+    for(int i = 0;i < particle_count; i++){
+        particle p = particle();
+        p.lifetime=10;
+        p.velocity[0] = initial_velocity[0];
+        p.velocity[1] = initial_velocity[1];
+        p.velocity[2] = initial_velocity[2];
+        p.position[0] = initial_position[0];
+        p.position[1] = initial_position[1];
+        p.position[2] = initial_position[2];
+        particles.
+    }
+}
 
-
-
+vector<float> gravity(particle p){
+    vector<float> toReturn();
+    toReturn[0] = p.mass*0.0;
+    toReturn[1] = p.mass*9.80665;
+    toReturn[2] = p.mass*0.0;
+}

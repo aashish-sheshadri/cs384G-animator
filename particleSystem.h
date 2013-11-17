@@ -57,6 +57,9 @@ public:
 	// of baked particles (without leaking memory).
 	virtual void clearBaked();	
 
+    // Create new particles
+    virtual void createNewParticles(float particle_count, vector<float> initial_velocity, vector<float> initial_position);
+
 
 	// These accessor fxns are implemented for you
 	float getBakeStartTime() { return bake_start_time; }
