@@ -28,6 +28,7 @@
 #include "linearcurveevaluator.h"
 #include "bsplinecurveevaluator.h"
 #include "beziercurveevaluator.h"
+#include "nbeziercurveevaluator.h"
 
 #define LEFT		1
 #define MIDDLE		2
@@ -121,7 +122,8 @@ m_flcCurrCurve(FL_BLACK)
 	m_ppceCurveEvaluators[CURVE_TYPE_BEZIER] = new BezierCurveEvaluator();
 	m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM] = new LinearCurveEvaluator();
 	// Note that C2-Interpolating curve is not a requirement
-	m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new LinearCurveEvaluator();
+	m_ppceCurveEvaluators[CURVE_TYPE_NBEZIER] = new NBezierCurveEvaluator();
+	// m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new LinearCurveEvaluator();
 }
 
 GraphWidget::~GraphWidget()
