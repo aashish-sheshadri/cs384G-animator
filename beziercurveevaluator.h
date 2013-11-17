@@ -7,12 +7,6 @@
 #include <queue>
 #include <deque>
 //using namespace std;
-struct ufGenSample{
-    size_t _u;
-    ufGenSample(size_t u = -1):_u(u){}
-    double operator () (double val){
-        ++_u;
-        return((double)_u/val);}};
 
 class BezierCurveEvaluator : public CurveEvaluator
 {

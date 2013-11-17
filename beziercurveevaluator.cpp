@@ -4,7 +4,7 @@
 
 
 BezierCurveEvaluator::BezierCurveEvaluator(){
-    _numSamples = 1000;}
+    _numSamples = 100;}
 
 void BezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts, 
 										 std::vector<Point>& ptvEvaluatedCurvePts, 
@@ -12,7 +12,7 @@ void BezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
 										 const bool& bWrap) const
 {
     ptvEvaluatedCurvePts.clear();
-    ptvEvaluatedCurvePts.reserve(_numSamples);
+    ptvEvaluatedCurvePts.reserve(_numSamples + 1);
     std::vector<double> samplePoints(_numSamples + 1,_numSamples);
     ufGenSample uf;
     std::transform(samplePoints.begin(),samplePoints.end(),samplePoints.begin(),uf);
