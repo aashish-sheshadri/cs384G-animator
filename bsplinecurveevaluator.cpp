@@ -25,20 +25,16 @@ void BSplineCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
 		std::vector<Point> knotVector;
 		knotVector.push_back(ptvCtrlPts[0]);
 		knotVector.push_back(ptvCtrlPts[0]);
-		for(std::vector<Point>::const_iterator itC = ptvCtrlPts.begin(); itC!=(ptvCtrlPts.end()-3);++itC){
+		for(std::vector<Point>::const_iterator itC = ptvCtrlPts.begin(); itC!=ptvCtrlPts.end();++itC)
 			knotVector.push_back(*itC);
-			knotVector.push_back(*(1+itC));
-			knotVector.push_back(*(2+itC));
-			knotVector.push_back(*(3+itC));
-		}
 		knotVector.push_back(*(ptvCtrlPts.end() - 1));
 		knotVector.push_back(*(ptvCtrlPts.end() - 1));
 
-		for(int i = 0;i<knotVector.size()/4;++i){
-			Point P0 = knotVector[4*i + 1];
-			Point P1 = knotVector[4*i + 2];
-			Point P2 = knotVector[4*i + 3];
-			Point P3 = knotVector[4*i + 4];
+		for(std::vector<Point>::iterator it = knotVector.begin();it!=(knotVector.end()-3);++it){
+			Point P0 = *it;
+			Point P1 = *(1 + it);
+			Point P2 = *(2 + it);
+			Point P3 = *(3 + it);
 			for(std::vector<double>::iterator it = samplePoints.begin();it!=samplePoints.end();++it){
 				Vec4d sampleMultVec(1,*it,(*it) * (*it), (*it) * (*it) * (*it));
 				Vec4d result = basisMat * sampleMultVec;
