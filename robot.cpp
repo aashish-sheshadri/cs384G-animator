@@ -314,6 +314,7 @@ void rotating_unit(float cannon_length, float cannon_size, float cannon_tilt) {
             glRotatef( -90.0, 0.0, 1.0, 0.0 );
             glPushMatrix();
                 paint_cannon(cannon_length, cannon_size);
+                // CALL CREATE PARTICLES HERE!!!
             glPopMatrix();
         glPopMatrix();
 	glPopMatrix();
@@ -505,7 +506,8 @@ int main()
 	// You should create a ParticleSystem object ps here and then
 	// call ModelerApplication::Instance()->SetParticleSystem(ps)
 	// to hook it up to the animator interface.
-
+    ParticleSystem ps = ParticleSystem();
+    ModelerApplication::Instance()->SetParticleSystem(&ps);
     ModelerApplication::Instance()->Init(&createRobotArm, controls, NUMCONTROLS);
     return ModelerApplication::Instance()->Run();
 }

@@ -17,11 +17,31 @@
 #define __PARTICLE_SYSTEM_H__
 
 #include "vec.h"
+#include "modelerdraw.h"
+#include <vector>
+struct Particle{
+    Vec3d _position;
+    Vec3d _velocity;
+    Vec3d _forces;
+    float _mass;
+    float _lifetime;
+    Particle(Vec3d position, Vec3d velocity, Vec3d forces, float mass, float lifetime):
+        _position(position),_velocity(velocity),_forces(forces), _mass(mass), _lifetime(lifetime){}
+};
+
+struct CheckDeath{
+    float _deltaT;
+    CheckDeath(float deltaT):_deltaT(deltaT){}
+    bool operator ()(Particle p){
+        if((p._lifetime - _deltaT)<0)
+            return true;
+        else
+            return false;}};
+
 
 class ParticleSystem {
-
 public:
-
+    std::vector<Particle> particles;
 	/** Constructor **/
 	ParticleSystem();
 
@@ -58,7 +78,7 @@ public:
 	virtual void clearBaked();	
 
     // Create new particles
-    virtual void createNewParticles(float particle_count, vector<float> initial_velocity, vector<float> initial_position);
+    virtual void createNewParticles(float particle_count, Vec3d initial_velocity, Vec3d initial_position);
 
 
 	// These accessor fxns are implemented for you
@@ -69,7 +89,7 @@ public:
 	bool isDirty() { return dirty; }
 	void setDirty(bool d) { dirty = d; }
 
-
+    Vec3d gravity(Particle p);
 protected:
 	
 
