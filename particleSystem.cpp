@@ -78,7 +78,7 @@ void ParticleSystem::resetSimulation(float t)
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
-	// Debugging info
+    // Debugging info
     if( t - _prevT > .04 )
         printf("(!!) Dropped Frame %lf (!!)\n", t-_prevT);
     if(t-_prevT < 0.005)
@@ -127,14 +127,12 @@ void ParticleSystem::drawParticles(float t)
   * your data structure for storing baked particles **/
 void ParticleSystem::bakeParticles(float t) 
 {
-	// TODO
-}
+    timeStampedParticles[t] = particles;}
 
 /** Clears out your data structure of baked particles */
 void ParticleSystem::clearBaked()
 {
-	// TODO
-}
+    timeStampedParticles.clear();}
 
 void ParticleSystem::createNewParticles(float particle_count, Mat4f matrix, Vec3d head, Vec3d tail, double cannon_radius, double cannon_length){
     if(!simulate){
