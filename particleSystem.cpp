@@ -78,12 +78,8 @@ void ParticleSystem::resetSimulation(float t)
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
-<<<<<<< HEAD
     bakeParticles(t);
     // Debugging info
-=======
-	// Debugging info
->>>>>>> b0eca455566f78a336947426a2411a6f85f2b889
     if( t - _prevT > .04 )
         printf("(!!) Dropped Frame %lf (!!)\n", t-_prevT);
     if(t-_prevT < 0.005)
@@ -136,14 +132,10 @@ void ParticleSystem::drawParticles(float t)
                 paintCannonBall();
             break;
             case Weapons::ICE_CUBE:
-                glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
-                glScalef(0.2f, 0.2f, 0.2f);
-                paintIceCube();
+
             break;
             case Weapons::ARROW:
-                glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
-                //glScalef(0.2f, 0.2f, 0.2f);
-                paintArrow();
+
             break;
         }
         glPopMatrix();
@@ -157,14 +149,12 @@ void ParticleSystem::drawParticles(float t)
   * your data structure for storing baked particles **/
 void ParticleSystem::bakeParticles(float t) 
 {
-	// TODO
-}
+    timeStampedParticles[t] = particles;}
 
 /** Clears out your data structure of baked particles */
 void ParticleSystem::clearBaked()
 {
-	// TODO
-}
+    timeStampedParticles.clear();}
 
 void ParticleSystem::createNewParticles(float particle_count, Mat4f matrix, Vec3d head, Vec3d tail, double cannon_radius, double cannon_length){
     if(!simulate){
@@ -177,11 +167,7 @@ void ParticleSystem::createNewParticles(float particle_count, Mat4f matrix, Vec3
             rY = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
         }while(rX*rX + rY*rY > cannon_radius*cannon_radius);
         Vec4f start = matrix*Vec4f(rX, rY, 0.0,1.0);
-        int weaponNumber = (rand() % Weapons::NUM_OF_WEAPONS);
-        Particle p = Particle( Vec3d(start[0],start[1],start[2]),
-                3*cannon_length*Vec3d(start[0]-tail[0],start[1]-tail[1],start[2]-tail[2]),
-                Vec3d(0.0f,0.0f,0.0f),
-                1, 1, (Weapons::WeaponsType)(weaponNumber));
+        Particle p = Particle(Vec3d(start[0],start[1],start[2]),3*cannon_length*Vec3d(start[0]-tail[0],start[1]-tail[1],start[2]-tail[2]),Vec3d(0.0f,0.0f,0.0f),1,1,Weapons::CANNON_BALL);
         particles.push_back(p);
     }
 }
@@ -195,31 +181,5 @@ Vec3d ParticleSystem::drag(Particle p){
 }
 
 void ParticleSystem::paintCannonBall(){
-    setShininess(100);
-    setDiffuseColor(0,0,0);
-    setSpecularColor(0.5,0.5,0.5);
     drawSphere(1);
-}
-
-void ParticleSystem::paintIceCube(){
-    setShininess(10);
-    setDiffuseColor(0.58,0.85,1);
-    setSpecularColor(1,1,1);
-    drawBox();
-}
-
-void ParticleSystem::paintArrow(){
-    setShininess(10);
-    setDiffuseColor(0.46,0.33,0.02);
-    setSpecularColor(0,0,0);
-    glRotatef(-90,0,1,0);
-    drawCylinder(0.5,0.05,0.05);
-    glPushMatrix();
-        glTranslatef(0,0,0.05);
-        drawCylinder(0.2,0.07,0.05);
-    glPopMatrix();
-    glPushMatrix();
-    glTranslatef(0,0,0.5);
-    drawCylinder(0.3,0.07,0.005);
-    glPopMatrix();
 }
