@@ -97,7 +97,7 @@ public:
 
     Vec3d gravity(Particle p);
     Vec3d drag(Particle p);
-    void paintCannonBall(double radius);
+    void paintCannonBall();
 protected:
 	
 
