@@ -132,16 +132,14 @@ void ParticleSystem::drawParticles(float t)
                 paintCannonBall();
             break;
             case Weapons::ICE_CUBE:
-
+            glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
+                glScalef(0.2f, 0.2f, 0.2f);
+                paintIceCube();
             break;
             case Weapons::ARROW:
-<<<<<<< HEAD
                 glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
                 //glScalef(0.2f, 0.2f, 0.2f);
                 paintArrow(*it);
-=======
-
->>>>>>> 27c1edf06a2d0bd18f3a39d4e2bc925929bf8a87
             break;
         }
         glPopMatrix();
@@ -173,7 +171,13 @@ void ParticleSystem::createNewParticles(float particle_count, Mat4f matrix, Vec3
             rY = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
         }while(rX*rX + rY*rY > cannon_radius*cannon_radius);
         Vec4f start = matrix*Vec4f(rX, rY, 0.0,1.0);
-        Particle p = Particle(Vec3d(start[0],start[1],start[2]),3*cannon_length*Vec3d(start[0]-tail[0],start[1]-tail[1],start[2]-tail[2]),Vec3d(0.0f,0.0f,0.0f),1,1,Weapons::CANNON_BALL);
+        int weaponNumber = (rand() % Weapons::NUM_OF_WEAPONS);
+        Particle p = Particle(Vec3d(start[0],start[1],start[2]),
+                3*cannon_length*Vec3d(start[0]-tail[0],start[1]-tail[1],start[2]-tail[2]),
+                Vec3d(0.0f,0.0f,0.0f),
+                1,
+                1,
+                Weapons::WeaponsType(weaponNumber));
         particles.push_back(p);
     }
 }
@@ -187,9 +191,11 @@ Vec3d ParticleSystem::drag(Particle p){
 }
 
 void ParticleSystem::paintCannonBall(){
+    setShininess(100);
+    setDiffuseColor(0,0,0);
+    setSpecularColor(0.5,0.5,0.5);
     drawSphere(1);
 }
-<<<<<<< HEAD
 
 void ParticleSystem::paintIceCube(){
     setShininess(10);
@@ -216,5 +222,3 @@ void ParticleSystem::paintArrow(Particle p){
     drawCylinder(0.3,0.07,0.005);
     glPopMatrix();
 }
-=======
->>>>>>> 27c1edf06a2d0bd18f3a39d4e2bc925929bf8a87
