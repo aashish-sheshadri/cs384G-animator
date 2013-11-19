@@ -78,12 +78,12 @@ void ParticleSystem::resetSimulation(float t)
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
-    bakeParticles(t);
     // Debugging info
     if( t - _prevT > .04 )
         printf("(!!) Dropped Frame %lf (!!)\n", t-_prevT);
     if(t-_prevT < 0.005)
         return;
+    bakeParticles(t);
     CheckDeath checkDeath(t-_prevT);
     std::vector<Particle>::iterator newEnd = std::remove_if(particles.begin(),particles.end(),checkDeath);
     particles.erase(newEnd,particles.end());
@@ -109,18 +109,23 @@ void ParticleSystem::drawParticles(float t)
 {
     if(!simulate)
         return;
-    assert(!timeStampedParticles.empty());
-    std::vector<Particle> thisParticles = (*(--timeStampedParticles.end())).second;
-    for(std::map<float,std::vector<Particle> >::iterator it = timeStampedParticles.begin();it!=timeStampedParticles.end();++it){
-        if(t == (*it).first){
-            thisParticles = (*it).second;
-            break;
-        }else if(t<(*it).first){
-            if(it!=timeStampedParticles.begin())
-                thisParticles = (*(--it)).second;
-            else
+    if(timeStampedParticles.empty())
+        return;
+    std::vector<Particle> thisParticles;
+    if(_prevT <= t)
+        thisParticles = particles;
+    else{
+        thisParticles = (*(--timeStampedParticles.end())).second;
+        for(std::map<float,std::vector<Particle> >::iterator it = timeStampedParticles.begin();it!=timeStampedParticles.end();++it){
+            if(t == (*it).first){
                 thisParticles = (*it).second;
-            break;}}
+                break;
+            }else if(t<(*it).first){
+                if(it!=timeStampedParticles.begin())
+                    thisParticles = (*(--it)).second;
+                else
+                    thisParticles = (*it).second;
+                break;}}}
 
 
     for(std::vector<Particle>::iterator it = thisParticles.begin();it!=thisParticles.end();++it){
