@@ -91,6 +91,6 @@ void drawCylinder( double h, double r1, double r2 );
 void drawTriangle( double x1, double y1, double z1,
 			       double x2, double y2, double z2,
 			       double x3, double y3, double z3 );
-
+void drawBox();
 #endif
 
