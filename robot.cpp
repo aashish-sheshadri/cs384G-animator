@@ -467,7 +467,7 @@ int main()
     controls[CANNON_TILT] = ModelerControl("cannon tilt (r_cn)", 0.0, 45.0, 0.1, 0.0 );
     controls[CANNON_LENGTH] = ModelerControl("cannon length (l_cn)", 0.5, 5.0, 0.1, 1.0 );
     controls[CANNON_SIZE] = ModelerControl("cannon diameter (d_cn)", 0.1, 5.0, 0.1, 0.4 );
-    controls[PARTICLE_COUNT] = ModelerControl("particle count (pc)", 0.0, 5.0, 0.1, 5.0 );
+    controls[PARTICLE_COUNT] = ModelerControl("particle count (pc)", 0.0, 10.0, 0.1, 2.0 );
     controls[RESET_ARMS] = ModelerControl("reset arms (x_ra) -- RESET TO 0 AFTERWARDS", 0.0, 360.0, 0.1, 0.0 );
     controls[EXTEND_ARMS] = ModelerControl("extend arms (x_ea) -- RESET TO 0 AFTERWARDS", -10.0, 10.0, 0.1, 0.0 );
     

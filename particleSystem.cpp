@@ -208,9 +208,15 @@ void ParticleSystem::paintArrow(Particle p){
     setShininess(10);
     setDiffuseColor(0.46,0.33,0.02);
     setSpecularColor(0,0,0);
-    glRotatef(180/3.14*acos(p._velocity[0]/p._velocity.length2()),1,0,0);
-    glRotatef(180/3.14*acos(p._velocity[1]/p._velocity.length2()),0,1,0);
-    glRotatef(180/3.14*acos(p._velocity[2]/p._velocity.length2()),0,0,1);
+    Vec3d nVelocity(p._velocity);
+    nVelocity.normalize();
+    Vec3d projectionOnXZ(nVelocity[0],0,nVelocity[2]);
+    projectionOnXZ.normalize();
+    Vec3d cross = projectionOnXZ^nVelocity;
+    double angleVandXZ = (180.0/3.14)*acos(nVelocity[0]*projectionOnXZ[0] + nVelocity[2]*projectionOnXZ[2]); //dot
+    double angleXYandX = (180.0/3.14)*acos(projectionOnXZ[0]);
+    glRotatef(angleVandXZ,cross[0],cross[1],cross[2]);
+    glRotatef(180 - angleXYandX,0,1,0);
     glRotatef(-90,0,1,0);
     drawCylinder(0.5,0.05,0.05);
     glPushMatrix();
