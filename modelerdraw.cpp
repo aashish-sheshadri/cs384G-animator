@@ -382,6 +382,50 @@ void drawCylinder( double h, double r1, double r2 )
     }
     
 }
+
+void drawBox() { //origin in the center of -y face
+
+    glBegin( GL_QUADS );
+
+    glNormal3d( 1.0 ,0.0, 0.0);			// +x side
+    glVertex3d( 0.5,0.0, 0.5);
+    glVertex3d( 0.5,0.0,-0.5);
+    glVertex3d( 0.5,1.0,-0.5);
+    glVertex3d( 0.5,1.0, 0.5);
+
+    glNormal3d( 0.0 ,0.0, -1.0);		// -z side
+    glVertex3d( 0.5,0.0,-0.5);
+    glVertex3d(-0.5,0.0,-0.5);
+    glVertex3d(-0.5,1.0,-0.5);
+    glVertex3d( 0.5,1.0,-0.5);
+
+    glNormal3d(-1.0, 0.0, 0.0);			// -x side
+    glVertex3d(-0.5,0.0,-0.5);
+    glVertex3d(-0.5,0.0, 0.5);
+    glVertex3d(-0.5,1.0, 0.5);
+    glVertex3d(-0.5,1.0,-0.5);
+
+    glNormal3d( 0.0, 0.0, 1.0);			// +z side
+    glVertex3d(-0.5,0.0, 0.5);
+    glVertex3d( 0.5,0.0, 0.5);
+    glVertex3d( 0.5,1.0, 0.5);
+    glVertex3d(-0.5,1.0, 0.5);
+
+    glNormal3d( 0.0,1.0, 0.0);			// top (+y)
+    glVertex3d( 0.5,1.0, 0.5);
+    glVertex3d( 0.5,1.0,-0.5);
+    glVertex3d(-0.5,1.0,-0.5);
+    glVertex3d(-0.5,1.0, 0.5);
+
+    glNormal3d( 0.0,-1.0, 0.0);			// bottom (-y)
+    glVertex3d( 0.5,0.0, 0.5);
+    glVertex3d(-0.5,0.0, 0.5);
+    glVertex3d(-0.5,0.0,-0.5);
+    glVertex3d( 0.5,0.0,-0.5);
+
+    glEnd();
+}
+
 void drawTriangle( double x1, double y1, double z1,
                    double x2, double y2, double z2,
                    double x3, double y3, double z3 )

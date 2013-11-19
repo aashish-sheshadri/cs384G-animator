@@ -20,7 +20,6 @@
 #include "mat.h"
 #include "modelerdraw.h"
 #include <vector>
-#include <map>
 namespace Weapons{ enum WeaponsType { CANNON_BALL=0, ARROW, ICE_CUBE, NUM_OF_WEAPONS};}
 struct Particle{
     Vec3d _position;
@@ -44,7 +43,6 @@ struct CheckDeath{
 
 
 class ParticleSystem {
-    std::map<float,std::vector<Particle> > timeStampedParticles;
 public:
     std::vector<Particle> particles;
 	/** Constructor **/
@@ -100,6 +98,8 @@ public:
     Vec3d gravity(Particle p);
     Vec3d drag(Particle p);
     void paintCannonBall();
+    void paintIceCube();
+    void paintArrow();
 protected:
 	
 
