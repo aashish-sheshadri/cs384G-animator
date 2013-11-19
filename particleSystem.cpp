@@ -88,12 +88,14 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
     particles.erase(newEnd,particles.end());
 
     for(std::vector<Particle>::iterator it = particles.begin();it!=particles.end();++it){
-        (*it)._position = (*it)._position + (t-_prevT)*((*it)._velocity);
         //Need all forces here
         (*it)._forces = Vec3d(0.0f,0.0f,0.0f);
         (*it)._forces += gravity(*it);
         (*it)._forces += drag(*it);
+
+        (*it)._position = (*it)._position + (t-_prevT)*((*it)._velocity);
         (*it)._velocity = (*it)._velocity + (t-_prevT) * (((*it)._forces)/((*it)._mass));
+
         (*it)._lifetime -= t-_prevT;
     }
 
@@ -108,8 +110,12 @@ void ParticleSystem::drawParticles(float t)
         return;
     for(std::vector<Particle>::iterator it = particles.begin();it!=particles.end();++it){
         glPushMatrix();
-            glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
-            drawSphere(0.1);
+        switch((*it)._weapon){
+            case Weapons::CANNON_BALL:
+                glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
+                paintCannonBall(0.1);
+            break;
+        }
         glPopMatrix();
     }
 }
@@ -135,10 +141,13 @@ void ParticleSystem::createNewParticles(float particle_count, Mat4f matrix, Vec3
         return;
     }
     for(int i = 0;i < particle_count; i++){
-        double rX = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
-        double rY = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
+        double rX, rY;
+        do{
+            rX = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
+            rY = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
+        }while(rX*rX + rY*rY > cannon_radius*cannon_radius);
         Vec4f start = matrix*Vec4f(rX, rY, 0.0,1.0);
-        Particle p = Particle(Vec3d(start[0],start[1],start[2]),cannon_length*cannon_length*Vec3d(start[0]-tail[0],start[1]-tail[1],start[2]-tail[2]),Vec3d(0.0f,0.0f,0.0f),1,1);
+        Particle p = Particle(Vec3d(start[0],start[1],start[2]),3*cannon_length*Vec3d(start[0]-tail[0],start[1]-tail[1],start[2]-tail[2]),Vec3d(0.0f,0.0f,0.0f),1,1,Weapons::CANNON_BALL);
         particles.push_back(p);
     }
 }
@@ -149,4 +158,8 @@ Vec3d ParticleSystem::gravity(Particle p){
 Vec3d ParticleSystem::drag(Particle p){
     double k = 0.47;
     return Vec3d(-k*p._velocity);
+}
+
+void ParticleSystem::paintCannonBall(double radius){
+    drawSphere(radius);
 }

@@ -20,14 +20,16 @@
 #include "mat.h"
 #include "modelerdraw.h"
 #include <vector>
+namespace Weapons{ enum WeaponsType { CANNON_BALL=0, ARROW, ICE_CUBE, NUM_OF_WEAPONS};}
 struct Particle{
     Vec3d _position;
     Vec3d _velocity;
     Vec3d _forces;
     float _mass;
     float _lifetime;
-    Particle(Vec3d position, Vec3d velocity, Vec3d forces, float mass, float lifetime):
-        _position(position),_velocity(velocity),_forces(forces), _mass(mass), _lifetime(lifetime){}
+    Weapons::WeaponsType _weapon;
+    Particle(Vec3d position, Vec3d velocity, Vec3d forces, float mass, float lifetime, Weapons::WeaponsType weapon):
+        _position(position),_velocity(velocity),_forces(forces), _mass(mass), _lifetime(lifetime), _weapon(weapon){}
 };
 
 struct CheckDeath{
@@ -95,6 +97,7 @@ public:
 
     Vec3d gravity(Particle p);
     Vec3d drag(Particle p);
+    void paintCannonBall(double radius);
 protected:
 	
 
