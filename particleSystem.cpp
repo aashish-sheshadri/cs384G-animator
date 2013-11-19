@@ -78,6 +78,7 @@ void ParticleSystem::resetSimulation(float t)
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
+    bakeParticles(t);
     // Debugging info
     if( t - _prevT > .04 )
         printf("(!!) Dropped Frame %lf (!!)\n", t-_prevT);
@@ -108,7 +109,21 @@ void ParticleSystem::drawParticles(float t)
 {
     if(!simulate)
         return;
-    for(std::vector<Particle>::iterator it = particles.begin();it!=particles.end();++it){
+    assert(!timeStampedParticles.empty());
+    std::vector<Particle> thisParticles = (*(--timeStampedParticles.end())).second;
+    for(std::map<float,std::vector<Particle> >::iterator it = timeStampedParticles.begin();it!=timeStampedParticles.end();++it){
+        if(t == (*it).first){
+            thisParticles = (*it).second;
+            break;
+        }else if(t<(*it).first){
+            if(it!=timeStampedParticles.begin())
+                thisParticles = (*(--it)).second;
+            else
+                thisParticles = (*it).second;
+            break;}}
+
+
+    for(std::vector<Particle>::iterator it = thisParticles.begin();it!=thisParticles.end();++it){
         glPushMatrix();
         switch((*it)._weapon){
             case Weapons::CANNON_BALL:
