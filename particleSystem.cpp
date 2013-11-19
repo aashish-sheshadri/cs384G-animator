@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <cassert>
 #include <cmath>
+#include "vec.h"
+#include "mat.h"
 using namespace std;
 
 float _prevT;
@@ -55,7 +57,7 @@ void ParticleSystem::startSimulation(float t)
 /** Stop the simulation */
 void ParticleSystem::stopSimulation(float t)
 {
-	// TODO
+    // TODO
 
 	// These values are used by the UI
 	simulate = false;
@@ -66,8 +68,7 @@ void ParticleSystem::stopSimulation(float t)
 /** Reset the simulation */
 void ParticleSystem::resetSimulation(float t)
 {
-	// TODO
-
+    particles.clear();
 	// These values are used by the UI
 	simulate = false;
 	dirty = true;
@@ -82,7 +83,6 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
         printf("(!!) Dropped Frame %lf (!!)\n", t-_prevT);
     if(t-_prevT < 0.005)
         return;
-    createNewParticles(1.0, Vec3d(10,10,0), Vec3d(2,0,0));
     CheckDeath checkDeath(t-_prevT);
     std::vector<Particle>::iterator newEnd = std::remove_if(particles.begin(),particles.end(),checkDeath);
     particles.erase(newEnd,particles.end());
@@ -92,8 +92,9 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
         //Need all forces here
         (*it)._forces = Vec3d(0.0f,0.0f,0.0f);
         (*it)._forces += gravity(*it);
+        (*it)._forces += drag(*it);
         (*it)._velocity = (*it)._velocity + (t-_prevT) * (((*it)._forces)/((*it)._mass));
-
+        (*it)._lifetime -= t-_prevT;
     }
 
     _prevT = t;
@@ -103,10 +104,12 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 /** Render particles */
 void ParticleSystem::drawParticles(float t)
 {
+    if(!simulate)
+        return;
     for(std::vector<Particle>::iterator it = particles.begin();it!=particles.end();++it){
         glPushMatrix();
             glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
-            drawSphere(0.2);
+            drawSphere(0.1);
         glPopMatrix();
     }
 }
@@ -127,15 +130,23 @@ void ParticleSystem::clearBaked()
 	// TODO
 }
 
-void ParticleSystem::createNewParticles(float particle_count, Vec3d initial_velocity, Vec3d initial_position){
-    std::cout<<"CURRENT PARTICLES"<< particles.size()<<"\n";
+void ParticleSystem::createNewParticles(float particle_count, Mat4f matrix, Vec3d head, Vec3d tail, double cannon_radius, double cannon_length){
+    if(!simulate){
+        return;
+    }
     for(int i = 0;i < particle_count; i++){
-        Particle p = Particle(initial_position,initial_velocity,Vec3d(0.0f,0.0f,0.0f),1,10);
-        // TODO RANDOM PERTURBATION TO VELOCITY
-        // TODO RANDOM INITIAL POSITION
+        double rX = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
+        double rY = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
+        Vec4f start = matrix*Vec4f(rX, rY, 0.0,1.0);
+        Particle p = Particle(Vec3d(start[0],start[1],start[2]),cannon_length*cannon_length*Vec3d(start[0]-tail[0],start[1]-tail[1],start[2]-tail[2]),Vec3d(0.0f,0.0f,0.0f),1,1);
         particles.push_back(p);
     }
 }
 
 Vec3d ParticleSystem::gravity(Particle p){
     return Vec3d(0.0f,p._mass*-9.80665,0.0f);}
+
+Vec3d ParticleSystem::drag(Particle p){
+    double k = 0.47;
+    return Vec3d(-k*p._velocity);
+}

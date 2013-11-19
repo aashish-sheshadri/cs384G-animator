@@ -121,7 +121,7 @@ void ModelerView::draw()
 	// If particle system exists, draw it
 	ParticleSystem *ps = ModelerApplication::Instance()->GetParticleSystem();
 	if (ps != NULL) {
-		ps->computeForcesAndUpdateParticles(t);
+        ps->computeForcesAndUpdateParticles(t);
 		ps->drawParticles(t);
 	}
 }

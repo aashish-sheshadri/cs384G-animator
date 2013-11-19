@@ -42,7 +42,7 @@ enum RobotControls
 };
 
 void threads(float diameter, float thickness);
-void rotating_unit(float cannon_length, float cannon_size, float cannon_tilt);
+void rotating_unit(float cannon_length, float cannon_size, float cannon_tilt, int particle_count, Mat4f matCamInverse);
 void paint_lower_arm();
 void paint_upper_arm();
 void paint_claw();
@@ -58,7 +58,7 @@ void paint_thin_pipe();
 
 Mat4f glGetMatrix(GLenum pname);
 Vec3f getWorldPoint(Mat4f matCamXforms);
-
+ParticleSystem ps;
 // To make a RobotArm, we inherit off of ModelerView
 class Robot : public ModelerView
 {
@@ -127,7 +127,7 @@ void Robot::draw()
     // While we're at it, save an inverted copy of this matrix.  We'll
     // need it later.
     Mat4f matCam = glGetMatrix( GL_MODELVIEW_MATRIX );
-    //Mat4f matCamInverse = matCam.inverse();
+    Mat4f matCamInverse = matCam.inverse();
 
 
 
@@ -157,7 +157,7 @@ void Robot::draw()
     glPushMatrix();
         glTranslatef( 0.0, 0.8, 0.0 );
         glRotatef( r_b, 0.0, 1.0, 0.0 );		// turn the whole assembly around the y-axis.
-        rotating_unit(l_cn, d_cn, r_cn);
+        rotating_unit(l_cn, d_cn, r_cn, pc, matCamInverse);
     glPopMatrix();
 
     float new_l_ua,new_l_la;
@@ -274,7 +274,7 @@ void threads(float diameter, float thickness) {
     glPopMatrix();
 }
 
-void rotating_unit(float cannon_length, float cannon_size, float cannon_tilt) {
+void rotating_unit(float cannon_length, float cannon_size, float cannon_tilt, int particle_count, Mat4f matCamInverse) {
     glPushMatrix();
 
         // the rotating base
@@ -313,8 +313,12 @@ void rotating_unit(float cannon_length, float cannon_size, float cannon_tilt) {
             glRotatef( -1*cannon_tilt, 0.0, 0.0, 1.0);
             glRotatef( -90.0, 0.0, 1.0, 0.0 );
             glPushMatrix();
+                Mat4f modelView = glGetMatrix( GL_MODELVIEW_MATRIX );
+                Vec4f tail = matCamInverse * modelView * Vec4f(0.0,0.0,0.0,1);
                 paint_cannon(cannon_length, cannon_size);
-                // CALL CREATE PARTICLES HERE!!!
+                modelView = glGetMatrix( GL_MODELVIEW_MATRIX );
+                Vec4f head = matCamInverse * modelView * Vec4f(0.0,0.0,0.0,1);
+                ps.createNewParticles(particle_count, matCamInverse * modelView, Vec3d(head[0],head[1],head[2]), Vec3d(tail[0], tail[1], tail[2]), cannon_size, cannon_length);
             glPopMatrix();
         glPopMatrix();
 	glPopMatrix();
@@ -506,7 +510,7 @@ int main()
 	// You should create a ParticleSystem object ps here and then
 	// call ModelerApplication::Instance()->SetParticleSystem(ps)
 	// to hook it up to the animator interface.
-    ParticleSystem ps = ParticleSystem();
+    ps = ParticleSystem();
     ModelerApplication::Instance()->SetParticleSystem(&ps);
     ModelerApplication::Instance()->Init(&createRobotArm, controls, NUMCONTROLS);
     return ModelerApplication::Instance()->Run();

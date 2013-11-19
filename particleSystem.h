@@ -17,6 +17,7 @@
 #define __PARTICLE_SYSTEM_H__
 
 #include "vec.h"
+#include "mat.h"
 #include "modelerdraw.h"
 #include <vector>
 struct Particle{
@@ -78,7 +79,10 @@ public:
 	virtual void clearBaked();	
 
     // Create new particles
-    virtual void createNewParticles(float particle_count, Vec3d initial_velocity, Vec3d initial_position);
+    virtual void createNewParticles(float particle_count, Mat4f matrix,
+                                    Vec3d head, Vec3d tail,
+                                    double cannon_radius,
+                                    double cannon_length);
 
 
 	// These accessor fxns are implemented for you
@@ -90,6 +94,7 @@ public:
 	void setDirty(bool d) { dirty = d; }
 
     Vec3d gravity(Particle p);
+    Vec3d drag(Particle p);
 protected:
 	
 
