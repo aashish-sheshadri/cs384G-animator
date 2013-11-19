@@ -124,7 +124,7 @@ void ParticleSystem::drawParticles(float t)
             case Weapons::ARROW:
                 glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
                 //glScalef(0.2f, 0.2f, 0.2f);
-                paintArrow();
+                paintArrow(*it);
             break;
         }
         glPopMatrix();
@@ -189,10 +189,13 @@ void ParticleSystem::paintIceCube(){
     drawBox();
 }
 
-void ParticleSystem::paintArrow(){
+void ParticleSystem::paintArrow(Particle p){
     setShininess(10);
     setDiffuseColor(0.46,0.33,0.02);
     setSpecularColor(0,0,0);
+    glRotatef(180/3.14*acos(p._velocity[0]/p._velocity.length2()),1,0,0);
+    glRotatef(180/3.14*acos(p._velocity[1]/p._velocity.length2()),0,1,0);
+    glRotatef(180/3.14*acos(p._velocity[2]/p._velocity.length2()),0,0,1);
     glRotatef(-90,0,1,0);
     drawCylinder(0.5,0.05,0.05);
     glPushMatrix();
