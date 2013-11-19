@@ -113,7 +113,14 @@ void ParticleSystem::drawParticles(float t)
         switch((*it)._weapon){
             case Weapons::CANNON_BALL:
                 glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
-                paintCannonBall(0.1);
+                glScalef(0.1f, 0.1f, 0.1f);
+                paintCannonBall();
+            break;
+            case Weapons::ICE_CUBE:
+
+            break;
+            case Weapons::ARROW:
+
             break;
         }
         glPopMatrix();
@@ -158,6 +165,6 @@ Vec3d ParticleSystem::drag(Particle p){
     return Vec3d(-k*p._velocity);
 }
 
-void ParticleSystem::paintCannonBall(double radius){
-    drawSphere(radius);
+void ParticleSystem::paintCannonBall(){
+    drawSphere(1);
 }
