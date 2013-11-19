@@ -78,8 +78,12 @@ void ParticleSystem::resetSimulation(float t)
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
+<<<<<<< HEAD
     bakeParticles(t);
     // Debugging info
+=======
+	// Debugging info
+>>>>>>> b0eca455566f78a336947426a2411a6f85f2b889
     if( t - _prevT > .04 )
         printf("(!!) Dropped Frame %lf (!!)\n", t-_prevT);
     if(t-_prevT < 0.005)
