@@ -29,8 +29,10 @@ struct Particle{
     float _mass;
     float _lifetime;
     Weapons::WeaponsType _weapon;
-    Particle(Vec3d position, Vec3d velocity, Vec3d forces, float mass, float lifetime, Weapons::WeaponsType weapon):
-        _position(position),_velocity(velocity),_forces(forces), _mass(mass), _lifetime(lifetime), _weapon(weapon){}
+    Vec3d _unperturbedVelocity;
+    Vec3d _rotationAmount;
+    Particle(Vec3d position, Vec3d velocity, Vec3d forces, float mass, float lifetime, Weapons::WeaponsType weapon, Vec3d rotationAmount):
+        _position(position),_velocity(velocity),_forces(forces), _mass(mass), _lifetime(lifetime), _weapon(weapon),_rotationAmount(rotationAmount){}
 };
 
 struct CheckDeath{
@@ -100,7 +102,7 @@ public:
     Vec3d gravity(Particle p);
     Vec3d drag(Particle p);
     void paintCannonBall();
-    void paintIceCube();
+    void paintIceCube(Particle p);
     void paintArrow(Particle p);
 protected:
 	

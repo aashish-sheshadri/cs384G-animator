@@ -78,12 +78,12 @@ void ParticleSystem::resetSimulation(float t)
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
+    bakeParticles(t);
     // Debugging info
     if( t - _prevT > .04 )
         printf("(!!) Dropped Frame %lf (!!)\n", t-_prevT);
     if(t-_prevT < 0.005)
         return;
-    bakeParticles(t);
     CheckDeath checkDeath(t-_prevT);
     std::vector<Particle>::iterator newEnd = std::remove_if(particles.begin(),particles.end(),checkDeath);
     particles.erase(newEnd,particles.end());
@@ -107,23 +107,20 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 /** Render particles */
 void ParticleSystem::drawParticles(float t)
 {
-    if(!simulate && timeStampedParticles.empty())
+    if(!simulate)
         return;
-    std::vector<Particle> thisParticles;
-    if(_prevT <= t)
-        thisParticles = particles;
-    else{
-        thisParticles = (*(--timeStampedParticles.end())).second;
-        for(std::map<float,std::vector<Particle> >::iterator it = timeStampedParticles.begin();it!=timeStampedParticles.end();++it){
-            if(t == (*it).first){
+    assert(!timeStampedParticles.empty());
+    std::vector<Particle> thisParticles = (*(--timeStampedParticles.end())).second;
+    for(std::map<float,std::vector<Particle> >::iterator it = timeStampedParticles.begin();it!=timeStampedParticles.end();++it){
+        if(t == (*it).first){
+            thisParticles = (*it).second;
+            break;
+        }else if(t<(*it).first){
+            if(it!=timeStampedParticles.begin())
+                thisParticles = (*(--it)).second;
+            else
                 thisParticles = (*it).second;
-                break;
-            }else if(t<(*it).first){
-                if(it!=timeStampedParticles.begin())
-                    thisParticles = (*(--it)).second;
-                else
-                    thisParticles = (*it).second;
-                break;}}}
+            break;}}
 
 
     for(std::vector<Particle>::iterator it = thisParticles.begin();it!=thisParticles.end();++it){
@@ -137,7 +134,7 @@ void ParticleSystem::drawParticles(float t)
             case Weapons::ICE_CUBE:
             glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
                 glScalef(0.2f, 0.2f, 0.2f);
-                paintIceCube();
+                paintIceCube((*it));
             break;
             case Weapons::ARROW:
                 glTranslatef((*it)._position[0],(*it)._position[1],(*it)._position[2]);
@@ -168,19 +165,24 @@ void ParticleSystem::createNewParticles(float particle_count, Mat4f matrix, Vec3
         return;
     }
     for(int i = 0;i < particle_count; i++){
-        double rX, rY;
+        double rX, rY, rZ;
         do{
             rX = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
             rY = (2*(rand() / double(RAND_MAX))-1)*cannon_radius;
         }while(rX*rX + rY*rY > cannon_radius*cannon_radius);
         Vec4f start = matrix*Vec4f(rX, rY, 0.0,1.0);
         int weaponNumber = (rand() % Weapons::NUM_OF_WEAPONS);
+        rX = (2*(rand() / double(RAND_MAX))-1)*90;
+        rY = (2*(rand() / double(RAND_MAX))-1)*90;
+        rZ = (2*(rand() / double(RAND_MAX))-1)*90;
+        Vec3d rotationAmount(rX,rY,rZ);
         Particle p = Particle(Vec3d(start[0],start[1],start[2]),
                 3*cannon_length*Vec3d(start[0]-tail[0],start[1]-tail[1],start[2]-tail[2]),
                 Vec3d(0.0f,0.0f,0.0f),
                 1,
                 1,
-                Weapons::WeaponsType(weaponNumber));
+                Weapons::WeaponsType(weaponNumber),
+                rotationAmount);
         particles.push_back(p);
     }
 }
@@ -200,17 +202,18 @@ void ParticleSystem::paintCannonBall(){
     drawSphere(1);
 }
 
-void ParticleSystem::paintIceCube(){
+void ParticleSystem::paintIceCube(Particle p){
     setShininess(10);
     setDiffuseColor(0.58,0.85,1);
     setSpecularColor(1,1,1);
-    double rX = (2*(rand() / double(RAND_MAX))-1)*90;
-    double rY = (2*(rand() / double(RAND_MAX))-1)*90;
-    double rZ = (2*(rand() / double(RAND_MAX))-1)*90;
+    double rX = p._rotationAmount[0]*p._lifetime*2;
+    double rY = p._rotationAmount[1]*p._lifetime*2;
+    double rZ = p._rotationAmount[2]*p._lifetime*2;
     glRotatef(rX,1,0,0);
     glRotatef(rY,0,1,0);
     glRotatef(rZ,0,0,1);
-    drawBox();}
+    drawBox();
+}
 
 void ParticleSystem::paintArrow(Particle p){
     setShininess(10);
@@ -226,7 +229,6 @@ void ParticleSystem::paintArrow(Particle p){
     if(nVelocity[2]<0)
         angleXYandX = -1 * angleXYandX;
     glRotatef(angleVandXZ,cross[0],cross[1],cross[2]);
-
     glRotatef(180 - angleXYandX,0,1,0);
     glRotatef(-90,0,1,0);
     drawCylinder(0.5,0.05,0.05);
