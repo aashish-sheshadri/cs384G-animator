@@ -109,6 +109,8 @@ void ParticleSystem::drawParticles(float t)
 {
     if(!simulate && timeStampedParticles.empty())
         return;
+    if(timeStampedParticles.empty())
+        return;
     std::vector<Particle> thisParticles;
     if(_prevT <= t)
         thisParticles = particles;
