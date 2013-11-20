@@ -204,8 +204,13 @@ void ParticleSystem::paintIceCube(){
     setShininess(10);
     setDiffuseColor(0.58,0.85,1);
     setSpecularColor(1,1,1);
-    drawBox();
-}
+    double rX = (2*(rand() / double(RAND_MAX))-1)*90;
+    double rY = (2*(rand() / double(RAND_MAX))-1)*90;
+    double rZ = (2*(rand() / double(RAND_MAX))-1)*90;
+    glRotatef(rX,1,0,0);
+    glRotatef(rY,0,1,0);
+    glRotatef(rZ,0,0,1);
+    drawBox();}
 
 void ParticleSystem::paintArrow(Particle p){
     setShininess(10);
