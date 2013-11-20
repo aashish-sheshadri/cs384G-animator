@@ -69,6 +69,8 @@ void ParticleSystem::stopSimulation(float t)
 void ParticleSystem::resetSimulation(float t)
 {
     particles.clear();
+    clearBaked();
+    _prevT = -1;
 	// These values are used by the UI
 	simulate = false;
 	dirty = true;

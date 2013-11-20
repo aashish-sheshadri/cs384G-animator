@@ -29,6 +29,7 @@ void BSplineCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
         knotVector.push_back(Point(fAniLength + ptvCtrlPts[0].x, ptvCtrlPts[0].y));
         knotVector.push_back(Point(fAniLength + ptvCtrlPts[0].x, ptvCtrlPts[0].y));}
 
+
     if(~bWrap){
         knotVector.push_back(*(ptvCtrlPts.end() - 1));
         knotVector.push_back(*(ptvCtrlPts.end() - 1));}
