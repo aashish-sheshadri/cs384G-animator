@@ -107,9 +107,7 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 /** Render particles */
 void ParticleSystem::drawParticles(float t)
 {
-    if(!simulate)
-        return;
-    if(timeStampedParticles.empty())
+    if(!simulate && timeStampedParticles.empty())
         return;
     std::vector<Particle> thisParticles;
     if(_prevT <= t)
@@ -220,7 +218,10 @@ void ParticleSystem::paintArrow(Particle p){
     Vec3d cross = projectionOnXZ^nVelocity;
     double angleVandXZ = (180.0/3.14)*acos(nVelocity[0]*projectionOnXZ[0] + nVelocity[2]*projectionOnXZ[2]); //dot
     double angleXYandX = (180.0/3.14)*acos(projectionOnXZ[0]);
+    if(nVelocity[2]<0)
+        angleXYandX = -1 * angleXYandX;
     glRotatef(angleVandXZ,cross[0],cross[1],cross[2]);
+
     glRotatef(180 - angleXYandX,0,1,0);
     glRotatef(-90,0,1,0);
     drawCylinder(0.5,0.05,0.05);
