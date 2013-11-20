@@ -44,7 +44,11 @@ void NBezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
             tempQueue.pop();
             Point second = tempQueue.front();
             tempQueue.pop();
-            ptvEvaluatedCurvePts.push_back(((1.0f - *it)*first)+((*it)*second));}}}
+            ptvEvaluatedCurvePts.push_back(((1.0f - *it)*first)+((*it)*second));}}
+    if(!bWrap){
+        ptvEvaluatedCurvePts.push_back(Point(0.0f,ptvCtrlPts[0].y));
+        ptvEvaluatedCurvePts.push_back(Point(fAniLength,(*(ptvCtrlPts.end() -1)).y));
+    }}
 
 void NBezierCurveEvaluator::setNumSamples(size_t numSamples){
     this->_numSamples = numSamples;}

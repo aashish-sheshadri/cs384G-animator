@@ -42,6 +42,10 @@ void BSplineCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
 			}
 		}
 	}
+    if(!bWrap){
+        ptvEvaluatedCurvePts.push_back(Point(0.0f,ptvCtrlPts[0].y));
+        ptvEvaluatedCurvePts.push_back(Point(fAniLength,(*(ptvCtrlPts.end() -1)).y));
+    }
 }
 
 void BSplineCurveEvaluator::setNumSamples(size_t numSamples){
