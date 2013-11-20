@@ -35,7 +35,7 @@ using namespace std;
 // of the controls from the user interface.
 enum RobotControls
 { 
-    BASE_ROTATION=0, //base controls
+    BASE_ROTATION=0,THREAD_ROTATION, MOVEMENT, //base controls
     LOWER_ARM_TILT, UPPER_ARM_TILT, CLAW_ROTATION, LOWER_ARM_LENGTH, UPPER_ARM_LENGTH, //arms
     CANNON_TILT, CANNON_LENGTH, CANNON_SIZE, //cannon
     PARTICLE_COUNT, RESET_ARMS, EXTEND_ARMS, NUMCONTROLS,
@@ -105,8 +105,10 @@ void Robot::draw()
 	/* pick up the slider values */
 
     float r_b = VAL( BASE_ROTATION );
+    float r_t = VAL( THREAD_ROTATION );
     float r_la = VAL( LOWER_ARM_TILT );
     float r_ua = VAL( UPPER_ARM_TILT );
+    float m_t = VAL ( MOVEMENT );
     float l_la = VAL( LOWER_ARM_LENGTH );
     float l_ua = VAL( UPPER_ARM_LENGTH );
     float r_cw = VAL( CLAW_ROTATION );
@@ -140,95 +142,99 @@ void Robot::draw()
         paint_ground(-0.2);
     glPopMatrix();
 
-    // threads of vehicle
     glPushMatrix();
-        threads(0.8, 0.5);
-    glPopMatrix();
+        glRotatef(r_t,0,1,0);
+        glTranslatef(-1*m_t, 0, 0 );
+        // threads of vehicle
+        glPushMatrix();
+            threads(0.8, 0.5);
+        glPopMatrix();
 
-    // skeleton of vehicle
-    glTranslatef( 0.0, 0.8, 0.0 );
-    glPushMatrix();
-        glScalef(2.0f, 0.8f, 2.0f);
-        drawBox();                         // platform on top of the threads
-    glPopMatrix();
-
-    // rotating surface of vehicle
-    glPushMatrix();
+        // skeleton of vehicle
         glTranslatef( 0.0, 0.8, 0.0 );
-        glRotatef( r_b, 0.0, 1.0, 0.0 );		// turn the whole assembly around the y-axis.
-        rotating_unit(l_cn, d_cn, r_cn, pc, matCamInverse);
-    glPopMatrix();
-
-    float new_l_ua,new_l_la;
-    if(l_ua + x_ea < 1.0)
-        new_l_ua = 1.0;
-    else if(l_ua + x_ea > 10)
-        new_l_ua = 10.0;
-    else
-        new_l_ua = l_ua + x_ea;
-
-    if(l_la + x_ea < 2.0)
-        new_l_la = 2.0;
-    else if(l_la + x_ea > 10)
-        new_l_la = 10.0;
-    else
-        new_l_la = l_la + x_ea;
-
-    float new_r_ua, new_r_la;
-    if(r_ua - x_ra < 0){
-        new_r_ua = 0;
-    } else {
-        new_r_ua = r_ua - x_ra;
-    }
-
-    if(r_la - x_ra < 0){
-        new_r_la = 0;
-    } else {
-        new_r_la = r_la - x_ra;
-    }
-    // rotating arm -z
-    glPushMatrix();
-        glTranslatef( 0.0, 0.4, 1.2);
-        glRotatef(90 - new_r_la, 0.0, 0.0, 1.0);
         glPushMatrix();
-            glScalef(0.4, new_l_la, 0.4);
-            paint_lower_arm();
+            glScalef(2.0f, 0.8f, 2.0f);
+            drawBox();                         // platform on top of the threads
         glPopMatrix();
+
+        // rotating surface of vehicle
         glPushMatrix();
-            glTranslatef( 0.0, new_l_la, 0.0 );
-            glRotatef(-1*new_r_ua, 1.0,0.0,0.0);
+            glTranslatef( 0.0, 0.8, 0.0 );
+            glRotatef( r_b, 0.0, 1.0, 0.0 );		// turn the whole assembly around the y-axis.
+            rotating_unit(l_cn, d_cn, r_cn, pc, matCamInverse);
+        glPopMatrix();
+
+        float new_l_ua,new_l_la;
+        if(l_ua + x_ea < 1.0)
+            new_l_ua = 1.0;
+        else if(l_ua + x_ea > 10)
+            new_l_ua = 10.0;
+        else
+            new_l_ua = l_ua + x_ea;
+
+        if(l_la + x_ea < 2.0)
+            new_l_la = 2.0;
+        else if(l_la + x_ea > 10)
+            new_l_la = 10.0;
+        else
+            new_l_la = l_la + x_ea;
+
+        float new_r_ua, new_r_la;
+        if(r_ua - x_ra < 0){
+            new_r_ua = 0;
+        } else {
+            new_r_ua = r_ua - x_ra;
+        }
+
+        if(r_la - x_ra < 0){
+            new_r_la = 0;
+        } else {
+            new_r_la = r_la - x_ra;
+        }
+        // rotating arm -z
+        glPushMatrix();
+            glTranslatef( 0.0, 0.4, 1.2);
+            glRotatef(90 - new_r_la, 0.0, 0.0, 1.0);
             glPushMatrix();
-                glScalef(0.3, new_l_ua, 0.3);
-                paint_upper_arm();
+                glScalef(0.4, new_l_la, 0.4);
+                paint_lower_arm();
             glPopMatrix();
-            glTranslatef(0.0, new_l_ua, 0.0);
-            glRotatef(-90, 0.0,1.0,0.0);
-            glRotatef(r_cw, 0.0, 0.0, 1.0);
-            glScalef(0.5,0.5,0.5);
-            paint_claw();
-        glPopMatrix();
-    glPopMatrix();
-
-    // rotating arm +z
-    glPushMatrix();
-        glTranslatef( 0.0, 0.4, -1.2);
-        glRotatef(90 - new_r_la, 0.0, 0.0, 1.0);
-        glPushMatrix();
-            glScalef(0.4, new_l_la, 0.4);
-            paint_lower_arm();
-        glPopMatrix();
-        glPushMatrix();
-            glTranslatef( 0.0, new_l_la, 0.0 );
-            glRotatef(new_r_ua, 1.0,0.0,0.0);
             glPushMatrix();
-                glScalef(0.3, new_l_ua, 0.3);
-                paint_upper_arm();
+                glTranslatef( 0.0, new_l_la, 0.0 );
+                glRotatef(-1*new_r_ua, 1.0,0.0,0.0);
+                glPushMatrix();
+                    glScalef(0.3, new_l_ua, 0.3);
+                    paint_upper_arm();
+                glPopMatrix();
+                glTranslatef(0.0, new_l_ua, 0.0);
+                glRotatef(-90, 0.0,1.0,0.0);
+                glRotatef(r_cw, 0.0, 0.0, 1.0);
+                glScalef(0.5,0.5,0.5);
+                paint_claw();
             glPopMatrix();
-            glTranslatef(0.0, new_l_ua, 0.0);
-            glRotatef(90, 0.0,1.0,0.0);
-            glRotatef(r_cw, 0.0, 0.0, 1.0);
-            glScalef(0.5,0.5,0.5);
-            paint_claw();
+        glPopMatrix();
+
+        // rotating arm +z
+        glPushMatrix();
+            glTranslatef( 0.0, 0.4, -1.2);
+            glRotatef(90 - new_r_la, 0.0, 0.0, 1.0);
+            glPushMatrix();
+                glScalef(0.4, new_l_la, 0.4);
+                paint_lower_arm();
+            glPopMatrix();
+            glPushMatrix();
+                glTranslatef( 0.0, new_l_la, 0.0 );
+                glRotatef(new_r_ua, 1.0,0.0,0.0);
+                glPushMatrix();
+                    glScalef(0.3, new_l_ua, 0.3);
+                    paint_upper_arm();
+                glPopMatrix();
+                glTranslatef(0.0, new_l_ua, 0.0);
+                glRotatef(90, 0.0,1.0,0.0);
+                glRotatef(r_cw, 0.0, 0.0, 1.0);
+                glScalef(0.5,0.5,0.5);
+                paint_claw();
+            glPopMatrix();
         glPopMatrix();
     glPopMatrix();
 
@@ -459,6 +465,8 @@ int main()
     ModelerControl controls[NUMCONTROLS ];
 
     controls[BASE_ROTATION] = ModelerControl("base rotation (r_b)", -180.0, 180.0, 0.1, 0.0 );
+    controls[THREAD_ROTATION] = ModelerControl("thread rotation (r_t)", -180.0, 180.0, 0.1, 0.0 );
+    controls[MOVEMENT] = ModelerControl("movement (m_t)", 0, 10.0, 0.1, 0.0 );
     controls[LOWER_ARM_TILT] = ModelerControl("lower arm tilt (r_la)", -180.0, 180.0, 0.1, 0.0 );
     controls[UPPER_ARM_TILT] = ModelerControl("upper arm tilt (r_ua)", 0.0, 135.0, 0.1, 0.0 );
     controls[CLAW_ROTATION] = ModelerControl("claw rotation (r_cw)", -90.0, 130.0, 0.1, 0.0 );
