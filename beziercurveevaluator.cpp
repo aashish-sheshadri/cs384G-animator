@@ -1,6 +1,4 @@
 #include "beziercurveevaluator.h"
-#include <cassert>
-#include <iostream>
 
 
 BezierCurveEvaluator::BezierCurveEvaluator(){

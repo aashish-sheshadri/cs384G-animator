@@ -16,35 +16,34 @@ void NBezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
     std::vector<double> samplePoints(_numSamples + 1,_numSamples);
     ufGenSample uf;
     std::transform(samplePoints.begin(),samplePoints.end(),samplePoints.begin(),uf);
-	if (bWrap) {
-		// if wrapping is on, interpolate the y value at xmin and
-		// xmax so that the slopes of the lines adjacent to the
-		// wraparound are equal.
 
-        //this is a bell
-	}
-	else {
-        std::queue<Point> beginQueue(std::deque<Point>(ptvCtrlPts.begin(),ptvCtrlPts.end()));
-        size_t numControlPoints = beginQueue.size();
-        for(std::vector<double>::iterator it = samplePoints.begin();it!=samplePoints.end();++it){
-            std::queue<Point> tempQueue = beginQueue;
-            size_t currControlPoints = numControlPoints;
-            size_t controlPointsCounter = numControlPoints;
-            while(currControlPoints>2){
-                Point first = tempQueue.front();
-                tempQueue.pop();
-                --controlPointsCounter;
-                if(controlPointsCounter == 0){
-                    --currControlPoints;
-                    controlPointsCounter = currControlPoints;
-                    continue;}
-                Point second = tempQueue.front();
-                tempQueue.push(((1.0f - *it)*first)+((*it)*second));}
+    std::queue<Point> beginQueue(std::deque<Point>(ptvCtrlPts.begin(),ptvCtrlPts.end()));
+
+    if(bWrap)
+        beginQueue.push(Point(fAniLength + ptvCtrlPts[0].x, ptvCtrlPts[0].y));
+    size_t numControlPoints = beginQueue.size();
+    for(std::vector<double>::iterator it = samplePoints.begin();it!=samplePoints.end();++it){
+        std::queue<Point> tempQueue = beginQueue;
+        size_t currControlPoints = numControlPoints;
+        size_t controlPointsCounter = numControlPoints;
+        while(currControlPoints>2){
             Point first = tempQueue.front();
             tempQueue.pop();
+            --controlPointsCounter;
+            if(controlPointsCounter == 0){
+                --currControlPoints;
+                controlPointsCounter = currControlPoints;
+                continue;}
             Point second = tempQueue.front();
-            tempQueue.pop();
-            ptvEvaluatedCurvePts.push_back(((1.0f - *it)*first)+((*it)*second));}}
+            tempQueue.push(((1.0f - *it)*first)+((*it)*second));}
+        Point first = tempQueue.front();
+        tempQueue.pop();
+        Point second = tempQueue.front();
+        tempQueue.pop();
+        Point evalPt = ((1.0f - *it)*first)+((*it)*second);
+        if(evalPt.x>fAniLength)
+            evalPt.x-=fAniLength;
+        ptvEvaluatedCurvePts.push_back(evalPt);}
     if(!bWrap){
         ptvEvaluatedCurvePts.push_back(Point(0.0f,ptvCtrlPts[0].y));
         ptvEvaluatedCurvePts.push_back(Point(fAniLength,(*(ptvCtrlPts.end() -1)).y));
